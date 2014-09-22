@@ -1,6 +1,7 @@
-# mapzen addresses project
+# mapzen addresses pipeline
 
-Explode addresses
+A pipeline for collating, normalizing, de-duplicating, and interpolating address data from a number of different
+sources, like TIGER and OpenStreetMap.
 
 ## Install Dependencies
 
@@ -10,9 +11,8 @@ $ npm install
 
 ## Contributing
 
-Please fork and pull request against upstream master on a feature branch.
-
-Pretty please; provide unit tests and script fixtures in the `test` directory.
+Please fork and pull request against upstream master on a feature branch. Pretty please: provide unit tests and script
+fixtures in the `test` directory.
 
 ### Running Unit Tests
 
