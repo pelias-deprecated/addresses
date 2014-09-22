@@ -1,7 +1,7 @@
 {
   "name": "addresses",
   "version": "0.0.0",
-  "description": "Mapzen addresses project",
+  "description": "Mapzen addresses pipeline for generating a high-quality dump of global addresses.",
   "main": "index.js",
   "scripts": {
     "test": "node test/run.js | tap-spec"
@@ -13,8 +13,7 @@
   "keywords": [
     "mapzen",
     "pelias",
-    "address",
-    "interpolation"
+    "address"
   ],
   "author": "mapzen",
   "license": "MIT",
