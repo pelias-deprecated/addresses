@@ -1,0 +1,32 @@
+{
+  "name": "addresses",
+  "version": "0.0.0",
+  "description": "Mapzen addresses project",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/run.js | tap-spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pelias/addresses"
+  },
+  "keywords": [
+    "mapzen",
+    "pelias",
+    "address",
+    "interpolation"
+  ],
+  "author": "mapzen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pelias/addresses/issues"
+  },
+  "homepage": "https://github.com/pelias/addresses",
+  "devDependencies": {
+    "tape": "^2.13.4",
+    "tap-spec": "^0.2.0"
+  },
+  "dependencies": {
+    "through2": "^0.6.1"
+  }
+}
