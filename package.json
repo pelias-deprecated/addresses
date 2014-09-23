@@ -26,6 +26,6 @@
     "tap-spec": "^0.2.0"
   },
   "dependencies": {
-    "through2": "^0.6.1"
+    "through": "^2.3.6"
   }
 }

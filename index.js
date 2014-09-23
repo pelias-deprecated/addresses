@@ -4,13 +4,36 @@ var fs = require( 'fs' );
 var JSONStream = require( 'JSONStream');
 var through = require( 'through' );
 
+/**
+ * Creates a readable stream of OSM records.
+ *
+ * Currently ingests a GeoJson file, but will eventually read records from a
+ * full-planet OSM PBF.
+ */
 function createOSMStream( path ) {
   var file = path;
   return fs.createReadStream( path, { encoding : 'utf8' })
     .pipe( JSONStream.parse( 'features.*' ) );
 }
 
-var normalizer = through( function write(record){
+/**
+ * Filter out and normalize OSM records.
+ *
+ * Creates a `through` stream that expects a stream of OSM records. Filters out
+ * records that aren't Points or don't have street names, and normalizes the
+ * others into the following format:
+ *
+ *      {
+ *          'house' : ...,
+ *          'street' : ...,
+ *          'city' : ...,
+ *          'state' : ...,
+ *          'zip' : ...
+ *      }
+ *
+ * Only `street` is guaranteed to be non-null.
+ */
+var addressNormalizer = through( function write(record){
   if(record.geometry.type !== 'Point' ||
     record.properties[ 'addr:street' ] === null){
     return;
@@ -31,6 +54,6 @@ var normalizer = through( function write(record){
 });
 
 createOSMStream( process.argv[ 2 ] )
-  .pipe( normalizer )
+  .pipe( addressNormalizer )
   .pipe( JSONStream.stringify() )
   .pipe( process.stdout );
