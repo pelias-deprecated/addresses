@@ -50,7 +50,8 @@ module.exports.tests.normalizer = function (test, common){
     var stream = new Stream.Readable( { objectMode: true } );
     var assertFilter = through( function write(obj){
       var expected = {
-        'house' : 'a 1',
+        'house' : 'a',
+        'number' : '1',
         'street' : 'b',
         'city' : 'c',
         'state' : 'd',
@@ -86,7 +87,7 @@ module.exports.tests.normalizer = function (test, common){
       'lat' : 44,
       'lon' : 55,
       'tags' : {
-        'addr:housenumber' : 1,
+        'addr:housenumber' : '1',
         'addr:housename' : 'a',
         'addr:street' : 'b',
         'addr:city' : 'c',

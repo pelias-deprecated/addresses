@@ -10,15 +10,17 @@ var proj4 = require( 'proj4' );
 /**
  * Create a normalized address object.
  *
- * @param {string} house The unique identifier of the house/building.
+ * @param {string} house The name of the house/building.
+ * @param {string} number The number of the house/building.
  * @param {string} street The street name.
  * @param {string} city The city name.
  * @param {string} state The region/district/state name.
  * @param {string} zip The zip-code.
  * @param {array of double} coords The [lat, lon].
  */
-function Address( house, street, city, state, zip, coords ){
+function Address( house, number, street, city, state, zip, coords ){
   this.house = house;
+  this.number = number;
   this.street = street;
   this.city = city;
   this.state = state;
@@ -53,28 +55,9 @@ var normalizer = through( function write( node ){
     return ( node.tags.hasOwnProperty( prop ) ) ? node.tags[ prop ] : null;
   }
 
-  /**
-   * @return {string or null} The unique name of this `node`'s building, as
-   *      compounded from its `addr:housename` and `addr:housenumber`. `null`
-   *      if neither key exists in the node's tags.
-   */
-  function getHouseID(){
-    var name = node.tags.hasOwnProperty( 'addr:housename' ) ?
-      node.tags[ 'addr:housename' ] : null;
-    var number = node.tags.hasOwnProperty( 'addr:housenumber' ) ?
-      node.tags[ 'addr:housenumber' ] : null;
-
-    if( name ){
-      return ( number ) ? name + ' ' + number : name;
-    }
-    else if( number )
-      return number;
-    else
-      return null;
-  }
-
   this.push( new Address(
-    getHouseID(),
+    getTag( 'addr:housename' ),
+    getTag( 'addr:housenumber' ),
     getTag( 'addr:street' ),
     getTag( 'addr:city' ),
     getTag( 'addr:district' ),
