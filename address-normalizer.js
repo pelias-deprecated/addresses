@@ -17,7 +17,7 @@ var proj4 = require( 'proj4' );
  * @param {string} zip The zip-code.
  * @param {array of double} coords The [ lon, lat ].
  */
-function Address(house, street, city, state, zip, coords){
+function Address( house, street, city, state, zip, coords ){
   this.house = house;
   this.street = street;
   this.city = city;
@@ -33,13 +33,13 @@ function Address(house, street, city, state, zip, coords){
  * records that aren't Points or don't have street names, and normalizes the
  * others into an Address object.
  */
-module.exports = through( function write(record){
+module.exports = through( function write( record ){
   if(record.geometry.type !== 'Point' ||
     record.properties[ 'addr:street' ] === null){
     return;
   }
 
-  function emptyIfNull(string){
+  function emptyIfNull( string ){
     return ( string === null ) ? '' : string;
   }
 
@@ -50,7 +50,7 @@ module.exports = through( function write(record){
    * @return {array of 2 doubles} `coordinates`, but reprojected from OSM's
    *      EPSG:3857 (Web Mercator)to EPSG:4326 (WGS84).
    */
-  function reproject(coordinates){
+  function reproject( coordinates ){
     return proj4(
       '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs', // WGS84 Web Mercator
       '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', // WGS84
@@ -58,7 +58,7 @@ module.exports = through( function write(record){
     );
   }
 
-  this.push(new Address(
+  this.push( new Address(
     emptyIfNull( record.properties[ 'addr:housename']  ) +
       emptyIfNull( record.properties[ 'addr:housenumber' ] ),
     record.properties[ 'addr:street' ],

@@ -1,11 +1,9 @@
 'use strict';
 
 var fs = require( 'fs' );
-var JSONStream = require( 'JSONStream');
-var through = require( 'through' );
+var JSONStream = require( 'JSONStream' );
 
 var addressNormalizer = require( './address-normalizer' );
-
 
 /**
  * Creates a readable stream of OSM records.
