@@ -1,5 +1,5 @@
 /**
- * @file An OSM record filter/normalizer.
+ * @file Exports filters for filtering/normalizing an OSM record stream.
  */
 
 'use strict';
@@ -27,18 +27,25 @@ function Address( house, street, city, state, zip, coords ){
 }
 
 /**
- * Filter out and normalize OSM records.
+ * Filter OSM records.
  *
  * Creates a `through` stream that expects a stream of OSM records. Filters out
- * records that aren't Points or don't have street names, and normalizes the
- * others into an Address object.
+ * anything that's not a Point or doesn't have a a street name.
  */
-module.exports = through( function write( record ){
-  if(record.geometry.type !== 'Point' ||
-    record.properties[ 'addr:street' ] === null){
-    return;
+var filter = through( function write( record ){
+  if(record.geometry.type === 'Point' &&
+    record.properties[ 'addr:street' ] !== null){
+    this.push( record );
   }
+});
 
+/**
+ * Normalize OSM records.
+ *
+ * Creates a `through` stream that expects a stream of OSM records. Normalizes
+ * the others into an Address object.
+ */
+var normalizer = through( function write( record ){
   function emptyIfNull( string ){
     return ( string === null ) ? '' : string;
   }
@@ -68,3 +75,8 @@ module.exports = through( function write( record ){
     reproject( record.geometry.coordinates )
   ));
 });
+
+module.exports = {
+  'filter' : filter,
+  'normalizer' : normalizer
+};

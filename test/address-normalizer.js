@@ -11,8 +11,50 @@ var util = require( 'util' );
 var through = require( 'through' );
 var addressNormalizer = require( '../address-normalizer' );
 
+module.exports.tests.filter = function ( test, common ){
+  test( 'Filters addresses', function ( t ){
+    var stream = new Stream.Readable( { objectMode: true } );
+    var assertFilter = through( function write(obj){
+      t.true( obj.geometry.type === 'Point', 'Records are Points' );
+      t.true(
+        obj.properties[ 'addr:street' ] !== null,
+        'Street name is not null.'
+      );
+    });
+
+    stream.push({
+      'geometry' : {
+        'type' : 'Point'
+      },
+      'properties' : {
+        'addr:street' : null
+      }
+    });
+    stream.push({
+      'geometry' : {
+        'type' : 'Line'
+      },
+      'properties' : {
+        'addr:street' : 'street'
+      }
+    });
+    stream.push({
+      'geometry' : {
+        'type' : 'Point'
+      },
+      'properties' : {
+        'addr:street' : 'street'
+      }
+    });
+    stream.push( null );
+
+    stream.pipe( addressNormalizer.filter ).pipe( assertFilter );
+    t.end();
+  });
+};
+
 module.exports.tests.normalizer = function (test, common){
-  test( 'Address normalizer', function (t){
+  test( 'Normalizes addresses.', function (t){
     var stream = new Stream.Readable( { objectMode: true } );
     var assertFilter = through( function write(obj){
       var expected = {
@@ -49,23 +91,6 @@ module.exports.tests.normalizer = function (test, common){
       t.true( obj.street !== null, 'Street is not null.' );
     });
 
-    // Push objects to test filters/output.
-    stream.push({
-      'geometry' : {
-        'type' : 'Point'
-      },
-      'properties' : {
-        'addr:street' : null
-      }
-    });
-    stream.push({
-      'geometry' : {
-        'type' : 'Line'
-      },
-      'properties' : {
-        'addr:street' : 'street'
-      }
-    });
     stream.push({
       'geometry' : {
         'type' : 'Point',
@@ -82,7 +107,7 @@ module.exports.tests.normalizer = function (test, common){
     });
 
     stream.push( null );
-    stream.pipe( addressNormalizer ).pipe( assertFilter );
+    stream.pipe( addressNormalizer.normalizer ).pipe( assertFilter );
     t.end();
   });
 };

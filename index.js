@@ -18,6 +18,7 @@ function createOSMStream( path ) {
 }
 
 createOSMStream( process.argv[ 2 ] )
-  .pipe( addressNormalizer )
+  .pipe( addressNormalizer.filter )
+  .pipe( addressNormalizer.normalizer )
   .pipe( JSONStream.stringify() )
   .pipe( process.stdout );
