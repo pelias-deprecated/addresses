@@ -1,7 +1,7 @@
 'use strict';
 
 var fs = require( 'fs' );
-var JSONStream = require( 'JSONStream' );
+var osmPbfParser = require( 'osm-pbf-parser' );
 var addressNormalizer = require( './address-normalizer' );
 
 /**
@@ -34,18 +34,18 @@ function handleUserInput( argv ){
         pbfStream = process.stdin;
         break;
       default:
-        pbfStream = fs.createReadStream(
-          argv[ 2 ], { encoding : 'utf8' }
-        );
+        pbfStream = fs.createReadStream(argv[ 2 ]);
         break;
     }
 
+    var through = require( 'through' ); // temporary: for debugging
     pbfStream
-      .pipe( JSONStream.parse( 'features.*' ) )
+      .pipe( osmPbfParser() )
       .pipe( addressNormalizer.filter )
-      .pipe( addressNormalizer.normalizer )
-      .pipe( JSONStream.stringify() )
-      .pipe( process.stdout );
+      // .pipe( addressNormalizer.normalizer )
+      .pipe( through( function write(obj){
+        console.log(JSON.stringify(obj));
+      }));
     }
 }
 

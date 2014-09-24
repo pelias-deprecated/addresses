@@ -15,37 +15,29 @@ module.exports.tests.filter = function ( test, common ){
   test( 'Filters addresses', function ( t ){
     var stream = new Stream.Readable( { objectMode: true } );
     var assertFilter = through( function write(obj){
-      t.true( obj.geometry.type === 'Point', 'Records are Points' );
+      t.true( obj.type === 'node', 'Records are nodes' );
       t.true(
-        obj.properties[ 'addr:street' ] !== null,
+        obj.tags[ 'addr:street' ] !== null,
         'Street name is not null.'
       );
     });
 
-    stream.push({
-      'geometry' : {
-        'type' : 'Point'
-      },
-      'properties' : {
-        'addr:street' : null
-      }
-    });
-    stream.push({
-      'geometry' : {
-        'type' : 'Line'
-      },
-      'properties' : {
+    stream.push([
+      {
+        'type' : 'Not a node',
         'addr:street' : 'street'
-      }
-    });
-    stream.push({
-      'geometry' : {
-        'type' : 'Point'
       },
-      'properties' : {
-        'addr:street' : 'street'
+      {
+        'type' : 'node',
+        'tags' : {}
+      },
+      {
+        'type' : 'node',
+        'tags' : {
+          'addr:street' : 'street'
+        }
       }
-    });
+    ]);
     stream.push( null );
 
     stream.pipe( addressNormalizer.filter ).pipe( assertFilter );

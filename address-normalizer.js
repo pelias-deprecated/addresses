@@ -29,13 +29,16 @@ function Address( house, street, city, state, zip, coords ){
 /**
  * Filter OSM records.
  *
- * Creates a `through` stream that expects a stream of OSM records. Filters out
- * anything that's not a Point or doesn't have a a street name.
+ * Creates a `through` stream that expects a stream of OSM buffered records.
+ * Filters out anything that's not a node or doesn't have the 'addr:street' tag
+ * (a street name).
  */
-var filter = through( function write( record ){
-  if(record.geometry.type === 'Point' &&
-    record.properties[ 'addr:street' ] !== null){
-    this.push( record );
+var filter = through( function write( buffer ){
+  for(var obj = 0; obj < buffer.length; obj++){
+    if(buffer[ obj ].type === 'node' &&
+      buffer[ obj ].tags.hasOwnProperty( 'addr:street' )){
+      this.push( buffer[ obj ] );
+    }
   }
 });
 
