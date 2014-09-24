@@ -1,10 +1,9 @@
-
 var tape = require('tape');
 var common = {};
 
 var tests = [
-  require('./index')
-  // other tests go here
+  require( './index' ),
+  require( './address-normalizer' )
 ];
 
 tests.map(function(t) {
