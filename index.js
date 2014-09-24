@@ -38,15 +38,14 @@ function handleUserInput( argv ){
         break;
     }
 
-    var through = require( 'through' ); // temporary: for debugging
     pbfStream
       .pipe( osmPbfParser() )
       .pipe( addressNormalizer.filter )
-      // .pipe( addressNormalizer.normalizer )
-      .pipe( through( function write(obj){
-        console.log(JSON.stringify(obj));
-      }));
-    }
+      .pipe( addressNormalizer.normalizer )
+      .pipe( require( 'through' )( function write(obj){
+        console.log(JSON.stringify(obj, undefined, 2));
+      })); // temporary: for debugging
+  }
 }
 
 handleUserInput( process.argv );

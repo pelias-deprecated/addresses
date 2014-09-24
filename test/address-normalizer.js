@@ -50,13 +50,13 @@ module.exports.tests.normalizer = function (test, common){
     var stream = new Stream.Readable( { objectMode: true } );
     var assertFilter = through( function write(obj){
       var expected = {
-        'house' : 'a1',
+        'house' : 'a 1',
         'street' : 'b',
         'city' : 'c',
         'state' : 'd',
-        'zip' : '8',
+        'zip' : '8'
       };
-      var expectedCoords = [ 17.355799925350922, 51.629529988171655 ];
+      var expectedCoords = [ 44, 55 ];
 
       for(var prop in expected){
         if( expected.hasOwnProperty( prop ) ){
@@ -65,7 +65,7 @@ module.exports.tests.normalizer = function (test, common){
             util.format('Has property: "%s".', prop)
           );
           t.true(
-            obj[ prop ] == expected[ prop ],
+            obj[ prop ] === expected[ prop ],
             util.format('"%s" value matches.', prop)
           );
         }
@@ -73,10 +73,8 @@ module.exports.tests.normalizer = function (test, common){
 
       t.true( obj.hasOwnProperty( 'coords' ), 'Has property "coords."');
       for(var coord = 0; coord < 2; coord++){
-        var diff = obj.coords[ coord ] -
-          expectedCoords[ coord ];
         t.true(
-          Math.abs( diff ) < 1e-4,
+          obj.coords[ coord ] === expectedCoords[ coord ],
           util.format( 'Coordinate %d matches.', coord )
         );
       }
@@ -84,11 +82,10 @@ module.exports.tests.normalizer = function (test, common){
     });
 
     stream.push({
-      'geometry' : {
-        'type' : 'Point',
-        'coordinates' : [ 1932038.81, 6733414.93 ]
-      },
-      'properties' : {
+      'type' : 'Point',
+      'lat' : 44,
+      'lon' : 55,
+      'tags' : {
         'addr:housenumber' : 1,
         'addr:housename' : 'a',
         'addr:street' : 'b',
