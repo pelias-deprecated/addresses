@@ -15,7 +15,7 @@ var proj4 = require( 'proj4' );
  * @param {string} city The city name.
  * @param {string} state The region/district/state name.
  * @param {string} zip The zip-code.
- * @param {array of double} coords The [ lon, lat ].
+ * @param {array of double} coords The [lat, lon].
  */
 function Address( house, street, city, state, zip, coords ){
   this.house = house;
@@ -48,34 +48,38 @@ var filter = through( function write( buffer ){
  * Creates a `through` stream that expects a stream of OSM records. Normalizes
  * the others into an Address object.
  */
-var normalizer = through( function write( record ){
-  function emptyIfNull( string ){
-    return ( string === null ) ? '' : string;
+var normalizer = through( function write( node ){
+  function getTag( prop ){
+    return ( node.tags.hasOwnProperty( prop ) ) ? node.tags[ prop ] : null;
   }
 
   /**
-   * Reprojects OSM to WGS84.
-   *
-   * @param coordinates {array of 2 doubles} A coordinate pair.
-   * @return {array of 2 doubles} `coordinates`, but reprojected from OSM's
-   *      EPSG:3857 (Web Mercator)to EPSG:4326 (WGS84).
+   * @return {string or null} The unique name of this `node`'s building, as
+   *      compounded from its `addr:housename` and `addr:housenumber`. `null`
+   *      if neither key exists in the node's tags.
    */
-  function reproject( coordinates ){
-    return proj4(
-      '+proj=merc +a=6378137 +b=6378137 +lat_ts=0.0 +lon_0=0.0 +x_0=0.0 +y_0=0 +k=1.0 +units=m +nadgrids=@null +wktext  +no_defs', // WGS84 Web Mercator
-      '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs', // WGS84
-      coordinates
-    );
+  function getHouseID(){
+    var name = node.tags.hasOwnProperty( 'addr:housename' ) ?
+      node.tags[ 'addr:housename' ] : null;
+    var number = node.tags.hasOwnProperty( 'addr:housenumber' ) ?
+      node.tags[ 'addr:housenumber' ] : null;
+
+    if( name ){
+      return ( number ) ? name + ' ' + number : name;
+    }
+    else if( number )
+      return number;
+    else
+      return null;
   }
 
   this.push( new Address(
-    emptyIfNull( record.properties[ 'addr:housename']  ) +
-      emptyIfNull( record.properties[ 'addr:housenumber' ] ),
-    record.properties[ 'addr:street' ],
-    record.properties[ 'addr:city' ],
-    record.properties[ 'addr:district' ],
-    record.properties[ 'addr:postcode' ],
-    reproject( record.geometry.coordinates )
+    getHouseID(),
+    getTag( 'addr:street' ),
+    getTag( 'addr:city' ),
+    getTag( 'addr:district' ),
+    getTag( 'addr:postcode' ),
+    [ node.lat, node.lon ]
   ));
 });
 
