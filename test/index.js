@@ -1,11 +1,13 @@
 
-var stream = require('../index');
+// var stream = require('../index');
+
+'use strict';
 
 module.exports.tests = {};
 
 module.exports.tests.interface = function(test, common) {
   test('factory', function(t) {
-	// t.equal(typeof stream, 'function', 'stream factory');
+  // t.equal(typeof stream, 'function', 'stream factory');
     t.end();
   });
 };
@@ -17,6 +19,8 @@ module.exports.all = function (tape, common) {
   }
 
   for( var testCase in module.exports.tests ){
-    module.exports.tests[testCase](test, common);
+    if( module.exports.tests.hasOwnProperty( testCase ) ){
+      module.exports.tests[testCase](test, common);
+    }
   }
 };
