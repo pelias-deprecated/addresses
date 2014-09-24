@@ -2,23 +2,51 @@
 
 var fs = require( 'fs' );
 var JSONStream = require( 'JSONStream' );
-
 var addressNormalizer = require( './address-normalizer' );
 
 /**
- * Creates a readable stream of OSM records.
+ * Handle user arguments.
  *
- * Currently ingests a GeoJson file, but will eventually read records from a
- * full-planet OSM PBF.
+ * @param {array of strings} Command line arguments (`process.argv`).
  */
-function createOSMStream( path ) {
-  var file = path;
-  return fs.createReadStream( path, { encoding : 'utf8' })
-    .pipe( JSONStream.parse( 'features.*' ) );
+function handleUserInput( argv ){
+  var useMessage = [
+    'Insufficient number of arguments.',
+    'use: node index.js [ --help | --stdin | FILENAME ]',
+    '\n\t--help : print this message and exit.',
+    '\t--stdin : read a PBF from stdin.',
+    '\tFILENAME : the name of a PBF file to read.'
+  ].join( '\n' );
+
+  if(argv.length !== 3){
+    console.error(useMessage);
+    process.exit( 1 );
+  }
+
+  else {
+    var pbfStream;
+
+    switch( argv[ 2 ] ){
+      case '--help':
+        console.log(useMessage);
+        return;
+      case '--stdin':
+        pbfStream = process.stdin;
+        break;
+      default:
+        pbfStream = fs.createReadStream(
+          argv[ 2 ], { encoding : 'utf8' }
+        );
+        break;
+    }
+
+    pbfStream
+      .pipe( JSONStream.parse( 'features.*' ) )
+      .pipe( addressNormalizer.filter )
+      .pipe( addressNormalizer.normalizer )
+      .pipe( JSONStream.stringify() )
+      .pipe( process.stdout );
+    }
 }
 
-createOSMStream( process.argv[ 2 ] )
-  .pipe( addressNormalizer.filter )
-  .pipe( addressNormalizer.normalizer )
-  .pipe( JSONStream.stringify() )
-  .pipe( process.stdout );
+handleUserInput( process.argv );

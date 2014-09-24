@@ -1,6 +1,8 @@
 
 // var stream = require('../index');
 
+'use strict';
+
 module.exports.tests = {};
 
 module.exports.tests.interface = function(test, common) {
@@ -17,6 +19,8 @@ module.exports.all = function (tape, common) {
   }
 
   for( var testCase in module.exports.tests ){
-    module.exports.tests[testCase](test, common);
+    if( module.exports.tests.hasOwnProperty( testCase ) ){
+      module.exports.tests[testCase](test, common);
+    }
   }
 };
