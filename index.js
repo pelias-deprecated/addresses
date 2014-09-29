@@ -37,7 +37,10 @@ function handleUserInput( argv ){
         break;
     }
 
-    addressNormalizer( pbfStream );
+    var pipeline = require( 'through' )( function write(obj){
+      console.log(JSON.stringify(obj, undefined, 2));
+    }); // temporary: for debugging
+    addressNormalizer( pbfStream ).pipe( pipeline );
   }
 }
 
