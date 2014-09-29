@@ -64,8 +64,8 @@ function testImports(){
   var addressesPipeline = require( 'through' )( function write( obj ){
     console.log( JSON.stringify( obj, undefined, 2 ) );
   });
-  osmAddresses( fs.createReadStream( osmPath ) ).pipe( addressesPipeline );
-  // tigerAddresses( fs.createReadStream( tigerPath ) );
+  // osmAddresses( fs.createReadStream( osmPath ) ).pipe( addressesPipeline );
+  tigerAddresses( tigerPath ).pipe( addressesPipeline );
 }
 
 testImports();
