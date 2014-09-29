@@ -1,8 +1,7 @@
 'use strict';
 
 var fs = require( 'fs' );
-var osmPbfParser = require( 'osm-pbf-parser' );
-var addressNormalizer = require( './address-normalizer' );
+var addressNormalizer = require( './lib/addresses/osm' );
 
 /**
  * Handle user arguments.
@@ -38,13 +37,7 @@ function handleUserInput( argv ){
         break;
     }
 
-    pbfStream
-      .pipe( osmPbfParser() )
-      .pipe( addressNormalizer.filter )
-      .pipe( addressNormalizer.normalizer )
-      .pipe( require( 'through' )( function write(obj){
-        console.log(JSON.stringify(obj, undefined, 2));
-      })); // temporary: for debugging
+    addressNormalizer( pbfStream );
   }
 }
 
