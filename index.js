@@ -2,6 +2,8 @@
 
 var fs = require( 'fs' );
 var osmAddresses = require( './lib/addresses/osm' );
+var tigerAddresses = require( './lib/addresses/tiger' );
+var util = require( 'util' );
 
 /**
  * Handle user arguments.
@@ -44,4 +46,26 @@ function handleUserInput( argv ){
   }
 }
 
-handleUserInput( process.argv );
+function testImports(){
+  var testDir = 'test_sources/';
+  var osmPath = testDir + 'test.osm.pbf';
+  var tigerPath = testDir + 'test.shp';
+
+  function checkIfFileExists( path ){
+    if( ! fs.existsSync( path ) ){
+      console.error( util.format( '"%s" not found.', path ) );
+      process.exit( 1 );
+    }
+  }
+
+  checkIfFileExists( osmPath );
+  checkIfFileExists( tigerPath );
+
+  var addressesPipeline = require( 'through' )( function write( obj ){
+    console.log( JSON.stringify( obj, undefined, 2 ) );
+  });
+  osmAddresses( fs.createReadStream( osmPath ) ).pipe( addressesPipeline );
+  // tigerAddresses( fs.createReadStream( tigerPath ) );
+}
+
+testImports();
