@@ -1,7 +1,7 @@
 'use strict';
 
 var fs = require( 'fs' );
-var addressNormalizer = require( './lib/addresses/osm' );
+var osmAddresses = require( './lib/addresses/osm' );
 
 /**
  * Handle user arguments.
@@ -17,8 +17,8 @@ function handleUserInput( argv ){
     '\tFILENAME : the name of a PBF file to read.'
   ].join( '\n' );
 
-  if(argv.length !== 3){
-    console.error(useMessage);
+  if( argv.length !== 3 ){
+    console.error( useMessage );
     process.exit( 1 );
   }
 
@@ -27,20 +27,20 @@ function handleUserInput( argv ){
 
     switch( argv[ 2 ] ){
       case '--help':
-        console.log(useMessage);
+        console.log( useMessage );
         return;
       case '--stdin':
         pbfStream = process.stdin;
         break;
       default:
-        pbfStream = fs.createReadStream(argv[ 2 ]);
+        pbfStream = fs.createReadStream( argv[ 2 ] );
         break;
     }
 
-    var pipeline = require( 'through' )( function write(obj){
-      console.log(JSON.stringify(obj, undefined, 2));
+    var pipeline = require( 'through' )( function write( obj ){
+      console.log( JSON.stringify( obj, undefined, 2 ) );
     }); // temporary: for debugging
-    addressNormalizer( pbfStream ).pipe( pipeline );
+    osmAddresses( pbfStream ).pipe( pipeline );
   }
 }
 
