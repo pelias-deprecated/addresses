@@ -60,5 +60,6 @@
 		"it",
 		"describe"
 	],
+	"unused": true,
 	"indent" : 2 // Specify indentation spacing
 }

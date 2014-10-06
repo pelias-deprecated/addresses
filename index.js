@@ -1,8 +1,9 @@
 'use strict';
 
 var fs = require( 'fs' );
-var osmPbfParser = require( 'osm-pbf-parser' );
-var addressNormalizer = require( './address-normalizer' );
+var osmAddresses = require( './lib/addresses/osm' );
+var tigerAddresses = require( './lib/addresses/tiger' );
+var util = require( 'util' );
 
 /**
  * Handle user arguments.
@@ -18,8 +19,8 @@ function handleUserInput( argv ){
     '\tFILENAME : the name of a PBF file to read.'
   ].join( '\n' );
 
-  if(argv.length !== 3){
-    console.error(useMessage);
+  if( argv.length !== 3 ){
+    console.error( useMessage );
     process.exit( 1 );
   }
 
@@ -28,24 +29,43 @@ function handleUserInput( argv ){
 
     switch( argv[ 2 ] ){
       case '--help':
-        console.log(useMessage);
+        console.log( useMessage );
         return;
       case '--stdin':
         pbfStream = process.stdin;
         break;
       default:
-        pbfStream = fs.createReadStream(argv[ 2 ]);
+        pbfStream = fs.createReadStream( argv[ 2 ] );
         break;
     }
 
-    pbfStream
-      .pipe( osmPbfParser() )
-      .pipe( addressNormalizer.filter )
-      .pipe( addressNormalizer.normalizer )
-      .pipe( require( 'through' )( function write(obj){
-        console.log(JSON.stringify(obj, undefined, 2));
-      })); // temporary: for debugging
+    var pipeline = require( 'through' )( function write( obj ){
+      console.log( JSON.stringify( obj, undefined, 2 ) );
+    }); // temporary: for debugging
+    osmAddresses( pbfStream ).pipe( pipeline );
   }
 }
 
-handleUserInput( process.argv );
+function testImports(){
+  var testDir = 'test_sources/';
+  var osmPath = testDir + 'test.osm.pbf';
+  var tigerPath = testDir + 'test.shp';
+
+  function checkIfFileExists( path ){
+    if( ! fs.existsSync( path ) ){
+      console.error( util.format( '"%s" not found.', path ) );
+      process.exit( 1 );
+    }
+  }
+
+  checkIfFileExists( osmPath );
+  checkIfFileExists( tigerPath );
+
+  var addressesPipeline = require( 'through' )( function write( obj ){
+    console.log( JSON.stringify( obj, undefined, 2 ) );
+  });
+  // osmAddresses( fs.createReadStream( osmPath ) ).pipe( addressesPipeline );
+  tigerAddresses( tigerPath ).pipe( addressesPipeline );
+}
+
+testImports();
