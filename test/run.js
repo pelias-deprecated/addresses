@@ -2,7 +2,6 @@ var tape = require('tape');
 var common = {};
 
 var tests = [
-  require( './index' ),
   require( './address-normalizer' )
 ];
 
