@@ -2,7 +2,7 @@ var tape = require('tape');
 var common = {};
 
 var tests = [
-  require( './address-normalizer' )
+  require( './osm' )
 ];
 
 tests.map(function(t) {

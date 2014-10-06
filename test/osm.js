@@ -9,7 +9,7 @@ module.exports.tests = {};
 var Stream = require( 'stream' );
 var util = require( 'util' );
 var through = require( 'through' );
-var addressNormalizer = require( '../address-normalizer' );
+var addressNormalizer = require( '../lib/addresses/osm' );
 
 module.exports.tests.filter = function ( test, common ){
   test( 'Filters addresses', function ( t ){
