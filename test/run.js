@@ -9,5 +9,13 @@ var tests = [
 ];
 
 tests.map( function( t ) {
-  t.all( tape, common );
+  function test( name, testFunction ){
+    return tape( name, testFunction );
+  }
+
+  for( var testCase in t.tests ){
+    if( t.tests.hasOwnProperty( testCase ) ){
+      t.tests[ testCase ]( test, common );
+    }
+  }
 });

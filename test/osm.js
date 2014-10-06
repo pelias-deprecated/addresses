@@ -87,15 +87,3 @@ module.exports.tests.normalizer = function ( test, common ){
     rawRecords.pipe( osm.normalizer ).pipe( assertFilter );
   });
 };
-
-module.exports.all = function all( tape, common ){
-  function test( name, testFunction ){
-    return tape( name, testFunction );
-  }
-
-  for( var testCase in module.exports.tests ){
-    if( module.exports.tests.hasOwnProperty( testCase ) ){
-      module.exports.tests[ testCase ]( test, common );
-    }
-  }
-};
