@@ -5,6 +5,7 @@
 'use strict';
 
 var stream = require( 'stream' );
+var util = require( 'util' );
 var tiger = require( '../lib/addresses/tiger' );
 var through = require( 'through' );
 
@@ -65,7 +66,7 @@ module.exports.tests.filter = function ( test, common ){
           LTOADD: null,
           RFROMADD: 5,
           RTOADD: 10,
-          fullname: 'street'
+          FULLNAME: 'street'
         }
       }
     ];
@@ -75,6 +76,91 @@ module.exports.tests.filter = function ( test, common ){
     rawRecords.push( null );
     rawRecords.pipe( tiger.filter ).pipe( assertFilter );
   });
+};
+
+module.exports.tests.normalizer = function ( test, common ){
+  test( 'normalizer(): Interpolates and normalizes addresses.',
+    // Check whether manually inserted records are getting interpolated and
+    // normalized correctly.
+    function ( t ){
+      var rawRecords = new stream.Readable( { objectMode: true } );
+      rawRecords.push({
+        geometry: {
+          coordinates: [ [ 0, 10 ], [ 4, 6 ], [ 7, 9 ], [ 3, 12 ] ]
+        },
+        properties: {
+          LFROMADD: 19,
+          LTOADD: 21,
+          RFROMADD: 20,
+          RTOADD: 22,
+          FULLNAME: 'street',
+          ZIPL: null,
+          ZIPR: 10001
+        }
+      });
+      rawRecords.push( null );
+
+      var expected = [
+        {
+          house: null,
+          number: 19,
+          street: 'street',
+          city: null,
+          state: null,
+          zip: 10001,
+          coords: [
+            0.00010606601717798211,
+            10.000106066017178
+          ]
+        },
+        {
+          house: null,
+          number: 21,
+          street: 'street',
+          city: null,
+          state: null,
+          zip: 10001,
+          coords: [
+            2.99991,
+            11.99988
+          ]
+        },
+        {
+          house: null,
+          number: 20,
+          street: 'street',
+          city: null,
+          state: null,
+          zip: 10001,
+          coords: [
+            -0.00010606601717798211,
+            9.999893933982822
+          ]
+        },
+        {
+          house: null,
+          number: 22,
+          street: 'street',
+          city: null,
+          state: null,
+          zip: 10001,
+          coords: [
+            3.00009,
+            12.00012
+          ]
+        }
+      ];
+      var currCompareRecord = 0;
+      var assertFilter = through( function ( obj ){
+        t.deepEqual(
+          obj, expected[ currCompareRecord++ ],
+          util.format( 'Record #%d matches.', currCompareRecord )
+        );
+      });
+      rawRecords.pipe( tiger.normalizer ).pipe( assertFilter );
+      t.end();
+    }
+  );
 };
 
 module.exports.all = function all( tape, common ){
