@@ -4,12 +4,12 @@
 
 'use strict';
 
-module.exports.tests = {};
-
 var stream = require( 'stream' );
 var util = require( 'util' );
 var through = require( 'through' );
 var osm = require( '../lib/addresses/osm' );
+
+module.exports.tests = {};
 
 module.exports.tests.filter = function ( test, common ){
   test( 'filter(): Filters addresses', function ( t ){
@@ -59,31 +59,12 @@ module.exports.tests.normalizer = function ( test, common ){
         'street' : 'b',
         'city' : 'c',
         'state' : 'd',
-        'zip' : '8'
+        'zip' : '8',
+        'coords': [ 44, 55 ]
       };
       var expectedCoords = [ 44, 55 ];
 
-      for( var prop in expected ){
-        if( expected.hasOwnProperty( prop ) ){
-          t.true(
-            obj.hasOwnProperty( prop ),
-            util.format( 'Has property: "%s".', prop )
-          );
-          t.true(
-            obj[ prop ] === expected[ prop ],
-            util.format( '"%s" value matches.', prop )
-          );
-        }
-      }
-
-      t.true( obj.hasOwnProperty( 'coords' ), 'Has property "coords."' );
-      for( var coord = 0; coord < 2; coord++ ){
-        t.true(
-          obj.coords[ coord ] === expectedCoords[ coord ],
-          util.format( 'Coordinate %d matches.', coord )
-        );
-      }
-      t.true( obj.street !== null, 'Street is not null.' );
+      t.deepEqual( expected, obj, 'Objects match.' );
     }, function end(){
       t.end();
     });
