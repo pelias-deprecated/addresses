@@ -1,21 +1,24 @@
 'use strict';
 
+var util = require( 'util' );
 var tape = require( 'tape' );
 var common = {};
 
-var tests = [
-  require( './osm' ),
-  require( './tiger' )
+var testPaths = [
+  'osm',
+  'tiger'
 ];
 
-tests.map( function( t ) {
-  function test( name, testFunction ){
-    return tape( name, testFunction );
+testPaths.map( function( path ) {
+  function runTest( name, testFunction ){
+    return tape( util.format( '%s: %s', path, name ), testFunction );
   }
 
-  for( var testCase in t.tests ){
-    if( t.tests.hasOwnProperty( testCase ) ){
-      t.tests[ testCase ]( test, common );
+  var testModule = require( './' + path );
+
+  for( var testCase in testModule.tests ){
+    if( testModule.tests.hasOwnProperty( testCase ) ){
+      testModule.tests[ testCase ]( runTest, common );
     }
   }
 });
