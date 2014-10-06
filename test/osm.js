@@ -12,7 +12,9 @@ var through = require( 'through' );
 var osm = require( '../lib/addresses/osm' );
 
 module.exports.tests.filter = function ( test, common ){
-  test( 'Filters addresses', function ( t ){
+  test( 'filter(): Filters addresses', function ( t ){
+    // Check whether manually inserted records are being filtered
+    // correctly.
     var rawRecords = new stream.Readable( { objectMode: true } );
     var assertFilter = through( function write( obj ){
       t.true( obj.type === 'node', 'Records are nodes' );
@@ -46,7 +48,9 @@ module.exports.tests.filter = function ( test, common ){
 };
 
 module.exports.tests.normalizer = function ( test, common ){
-  test( 'Normalizes addresses.', function ( t ){
+  test( 'normalizer(): Normalizes addresses.', function ( t ){
+    // Check whether manually inserted records are getting normalized
+    // correctly.
     var rawRecords = new stream.Readable( { objectMode: true } );
     var assertFilter = through( function write( obj ){
       var expected = {
