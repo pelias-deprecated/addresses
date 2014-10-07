@@ -1,33 +1,35 @@
-'use strict';
+// 'use strict';
 
 var fs = require( 'fs' );
-var osm = require( './lib/addresses/osm' );
-var tiger = require( './lib/addresses/tiger' );
+var path = require( 'path' );
 var util = require( 'util' );
 
-function testImports(){
-  var testDir = 'test_sources/';
-  var osmPath = testDir + 'test.osm.pbf';
-  var tigerPath = testDir + 'test.shp';
+var CombinedStream = require('combined-stream');
+var minimist = require( 'minimist' );
+var osm = require( './lib/addresses/osm' );
+var tiger = require( './lib/addresses/tiger' );
 
-  function checkIfFileExists( path ){
-    if( ! fs.existsSync( path ) ){
-      console.error( util.format( '"%s" not found.', path ) );
-      process.exit( 1 );
-    }
+function handleUserArgs( rawArgs ){
+  var helpMessage = [
+    'A tool for importing, normalizing, and cross-interpolating addresses',
+    'from numerous data sets. Use:',
+    '\n\tnode index.js [ --help | --source SOURCE [ ... ] ]\n',
+    '--help: print this message and exit.',
+    '--source SOURCE: import all files belonging to a supported dataset',
+    '\tfrom the argument directory (eg `--tiger tiger_shapefiles/`).'
+  ].join( '\n' );
+
+  if( rawArgs.length === 0 ){
+    console.log( helpMessage );
+    process.exit( 1 );
   }
-
-  checkIfFileExists( osmPath );
-  checkIfFileExists( tigerPath );
-
-  var addressesPipeline = require( 'through' )( function write( obj ){
-    console.log( JSON.stringify( obj, undefined, 2 ) );
-  });
-  // osm.addressStream( fs.createReadStream( osmPath ) )
-    // .pipe( addressesPipeline );
-
-  tiger.addressStream( tigerPath )
-    .pipe( addressesPipeline );
+  var args = minimist( rawArgs );
+  if( args.hasOwnProperty( 'help' ) ){
+    console.log( helpMessage );
+    return;
+  }
+  else {
+  }
 }
 
-testImports();
+handleUserArgs( process.argv.slice( 2 ) );
