@@ -5,7 +5,6 @@
 'use strict';
 
 var stream = require( 'stream' );
-var util = require( 'util' );
 var through = require( 'through' );
 var osm = require( '../lib/addresses/osm' );
 
@@ -62,7 +61,6 @@ module.exports.tests.normalizer = function ( test, common ){
         'zip' : '8',
         'coords': [ 44, 55 ]
       };
-      var expectedCoords = [ 44, 55 ];
 
       t.deepEqual( expected, obj, 'Objects match.' );
     }, function end(){
