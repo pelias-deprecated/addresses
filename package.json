@@ -29,6 +29,8 @@
     "through": "^2.3.6",
     "osm-pbf-parser":  "^2.1.0",
     "line-interpolate-points": "^1.0.3",
-    "shapefile-stream": "^0.0.3"
+    "shapefile-stream": "^0.0.3",
+     "minimist": "^1.1.0",
+    "combined-stream": "^0.0.5"
   }
 }
