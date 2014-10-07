@@ -1,17 +1,32 @@
+/**
+ * The main entry point for the Pelias adresses import. Designed to be run as a
+ * command-line utility: `node index.js --help`.
+ */
+
 'use strict';
 
 var fs = require( 'fs' );
 var path = require( 'path' );
 
-var CombinedStream = require('combined-stream');
+var CombinedStream = require( 'combined-stream' );
 var minimist = require( 'minimist' );
 var osm = require( './lib/addresses/osm' );
 var tiger = require( './lib/addresses/tiger' );
 
-function createFileAddressStreams( dirName, filenameRegex, action ){
-  var files = fs.readdirSync( dirName );
+/**
+ * Execute an action on all files in a directory whose paths match a regular
+ * expression.
+ *
+ * @param {string} dirPath The path of the directory to search.
+ * @param {string} filenameRegex The regular expression to match file names
+ *      inside `dirPath` against.
+ * @param {function} action A function taking a single argument, a string
+ *      filepath, that'll be called once for every matching path.
+ */
+function createFileAddressStreams( dirPath, filenameRegex, action ){
+  var files = fs.readdirSync( dirPath );
   for( var file = 0; file < files.length; file++ ){
-    var filePath = path.join( dirName, files[ file ] );
+    var filePath = path.join( dirPath, files[ file ] );
     if( ( fs.lstatSync( filePath ).isFile() &&
       filenameRegex.test( filePath ) ) ){
       action( filePath );
@@ -19,6 +34,12 @@ function createFileAddressStreams( dirName, filenameRegex, action ){
   }
 }
 
+/**
+ * Respond to user command-line arguments.
+ *
+ * @param {array of string} rawArgs Just `process.argv.splice( 2 )` ( ie, all
+ *      command-line arguments in an array).
+ */
 function handleUserArgs( rawArgs ){
   var helpMessage = [
     'A tool for importing, normalizing, and cross-interpolating addresses',
