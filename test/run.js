@@ -6,7 +6,8 @@ var common = {};
 
 var testPaths = [
   'osm',
-  'tiger'
+  'tiger',
+  'openaddresses'
 ];
 
 testPaths.map( function( path ) {
