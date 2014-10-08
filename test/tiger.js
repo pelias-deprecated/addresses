@@ -156,9 +156,10 @@ module.exports.tests.normalizer = function ( test, common ){
           obj, expected[ currCompareRecord++ ],
           util.format( 'Record #%d matches.', currCompareRecord )
         );
+      }, function end(){
+        t.end();
       });
       rawRecords.pipe( tiger.normalizer ).pipe( assertFilter );
-      t.end();
     }
   );
 };
