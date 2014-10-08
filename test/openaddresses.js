@@ -5,6 +5,7 @@
 'use strict';
 
 var stream = require( 'stream' );
+var util = require( 'util' );
 var openaddresses = require( '../lib/addresses/openaddresses' );
 var through = require( 'through' );
 
@@ -36,4 +37,39 @@ module.exports.tests.filter = function ( test, common ){
     rawRecords.push( null );
     rawRecords.pipe( openaddresses.filter ).pipe( assertFilter );
   });
+};
+
+module.exports.tests.normalizer = function ( test, common ){
+  test( 'normalizer(): normalizes addresses.',
+    // Check whether manually inserted records are getting interpolated and
+    // normalized correctly.
+    function ( t ){
+      var rawRecords = new stream.Readable( { objectMode: true } );
+      rawRecords.push({
+        lon: 10,
+        lat: 15,
+        number: 5,
+        street: 'mapzen'
+      });
+      rawRecords.push( null );
+
+      var expected = {
+        house: null,
+        number: 5,
+        street: 'mapzen',
+        city: null,
+        state: null,
+        zip: null,
+        coords: [ 15, 10 ]
+      };
+      var assertFilter = through( function ( obj ){
+        t.deepEqual(
+          obj, expected,
+          util.format( 'Normalized record matches expected.' )
+        );
+      });
+      rawRecords.pipe( openaddresses.normalizer ).pipe( assertFilter );
+      t.end();
+    }
+  );
 };
