@@ -30,7 +30,9 @@
     "osm-pbf-parser":  "^2.1.0",
     "line-interpolate-points": "^1.0.3",
     "shapefile-stream": "^0.0.3",
-     "minimist": "^1.1.0",
-    "combined-stream": "^0.0.5"
+    "minimist": "^1.1.0",
+    "combined-stream": "^0.0.5",
+    "csv-stream": "^0.1.3",
+    "require-dir": "^0.1.0"
   }
 }

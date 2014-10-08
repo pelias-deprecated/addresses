@@ -10,8 +10,8 @@ var path = require( 'path' );
 
 var CombinedStream = require( 'combined-stream' );
 var minimist = require( 'minimist' );
-var osm = require( './lib/addresses/osm' );
-var tiger = require( './lib/addresses/tiger' );
+var requireDir = require( 'require-dir' );
+var addresses = requireDir( 'lib/addresses' );
 
 /**
  * Execute an action on all files in a directory whose paths match a regular
@@ -67,7 +67,7 @@ function handleUserArgs( rawArgs ){
         args.osm,
         /\.osm\.pbf$/,
         function ( filename ){
-          var osmStream = osm.addressStream(
+          var osmStream = addresses.osm.addressStream(
             fs.createReadStream( filename )
           );
           addressStream.append( osmStream );
@@ -80,13 +80,27 @@ function handleUserArgs( rawArgs ){
         args.tiger,
         /\.shp$/,
         function ( filename ){
-          addressStream.append( tiger.addressStream( filename ) );
+          addressStream.append(
+            addresses.tiger.addressStream( filename )
+          );
+        }
+      );
+    }
+
+    if( args.hasOwnProperty( 'openaddresses' ) ){
+      createFileAddressStreams(
+        args.openaddresses,
+        /\.csv/,
+        function ( filename ){
+          var openaddressesStream = addresses.openaddresses.
+            addressStream( fs.createReadStream( filename ) );
+          addressStream.append( openaddressesStream );
         }
       );
     }
 
     var addressesPipeline = require( 'through' )( function write( obj ){
-      console.log( JSON.stringify( obj.house, undefined, 2 ) );
+      console.log( JSON.stringify( obj, undefined, 2 ) );
     });
     addressStream.pipe( addressesPipeline );
   }
