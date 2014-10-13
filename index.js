@@ -9,6 +9,7 @@ var fs = require( 'fs' );
 var path = require( 'path' );
 
 var CombinedStream = require( 'combined-stream' );
+var shapefileStream = require( 'shapefile-stream' );
 var minimist = require( 'minimist' );
 var requireDir = require( 'require-dir' );
 var addresses = requireDir( 'lib/addresses' );
@@ -60,49 +61,62 @@ function handleUserArgs( rawArgs ){
     return;
   }
   else {
-    var addressStream = CombinedStream.create();
+    var addressStreams = {};
 
     if( args.hasOwnProperty( 'osm' ) ){
+      addressStreams.osm = CombinedStream.create();
       createFileAddressStreams(
         args.osm,
         /\.osm\.pbf$/,
         function ( filename ){
-          var osmStream = addresses.osm.addressStream(
-            fs.createReadStream( filename )
-          );
-          addressStream.append( osmStream );
+          var fileStream = fs.createReadStream( filename );
+          addressStreams.osm.append( fileStream );
         }
       );
     }
 
     if( args.hasOwnProperty( 'tiger' ) ){
+      addressStreams.tiger = CombinedStream.create();
       createFileAddressStreams(
         args.tiger,
         /\.shp$/,
         function ( filename ){
-          addressStream.append(
-            addresses.tiger.addressStream( filename )
-          );
+          addressStreams.tiger.append( function ( next ){
+            var fileStream = shapefileStream.createReadStream(
+              filename
+            );
+            next( fileStream );
+          });
         }
       );
     }
 
     if( args.hasOwnProperty( 'openaddresses' ) ){
+      addressStreams.openaddresses = CombinedStream.create();
       createFileAddressStreams(
         args.openaddresses,
-        /\.csv/,
+        /\.csv$/,
         function ( filename ){
-          var openaddressesStream = addresses.openaddresses.
-            addressStream( fs.createReadStream( filename ) );
-          addressStream.append( openaddressesStream );
+          var fileStream = fs.createReadStream( filename );
+          addressStreams.openaddresses.append( fileStream );
         }
       );
     }
 
+    var unifiedAddressStream = CombinedStream.create();
+    for( var dataset in addressStreams ){
+      if( addressStreams.hasOwnProperty( dataset ) ){
+        var addressStream = addresses[ dataset ].addressStream(
+          addressStreams[ dataset ]
+        );
+        unifiedAddressStream.append( addressStream );
+      }
+    }
+
     var addressesPipeline = require( 'through' )( function write( obj ){
-      console.log( JSON.stringify( obj, undefined, 2 ) );
-    });
-    addressStream.pipe( addressesPipeline );
+      console.log( JSON.stringify( obj, undefined, 0 ) );
+    }); // for testing
+    unifiedAddressStream.pipe( addressesPipeline );
   }
 }
 
