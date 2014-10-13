@@ -36,6 +36,74 @@ function createFileAddressStreams( dirPath, filenameRegex, action ){
 }
 
 /**
+ * Import datasets into the addresses pipeline.
+ *
+ * @param {object} datasets An object mapping the name of each dataset to
+ *      import to the directory containins its files. See the `--source`
+ *      command-line argument in `node index.js --help`.
+ */
+function importDatasets( datasets ){
+  var addressStreams = {};
+
+  if( datasets.hasOwnProperty( 'osm' ) ){
+    addressStreams.osm = CombinedStream.create();
+    createFileAddressStreams(
+      datasets.osm,
+      /\.osm\.pbf$/,
+      function ( filename ){
+        var fileStream = fs.createReadStream( filename );
+        addressStreams.osm.append( fileStream );
+      }
+    );
+  }
+
+  if( datasets.hasOwnProperty( 'tiger' ) ){
+    addressStreams.tiger = CombinedStream.create();
+    createFileAddressStreams(
+      datasets.tiger,
+      /\.shp$/,
+      function ( filename ){
+        addressStreams.tiger.append( function ( next ){
+          var fileStream = shapefileStream.createReadStream(
+            filename
+          );
+          next( fileStream );
+        });
+      }
+    );
+  }
+
+  if( datasets.hasOwnProperty( 'openaddresses' ) ){
+    addressStreams.openaddresses = CombinedStream.create();
+    createFileAddressStreams(
+      datasets.openaddresses,
+      /\.csv$/,
+      function ( filename ){
+        var fileStream = fs.createReadStream( filename );
+        addressStreams.openaddresses.append( fileStream );
+      }
+    );
+  }
+
+  var unifiedAddressStream = CombinedStream.create();
+  var datasetOrder = ['openaddresses', 'osm', 'tiger'];
+  for( var ind = 0; ind < datasetOrder.length; ind++ ){
+    var dataset = datasetOrder[ ind ];
+    if( addressStreams.hasOwnProperty( dataset ) ){
+      var addressStream = addresses[ dataset ].addressStream(
+        addressStreams[ dataset ]
+      );
+      unifiedAddressStream.append( addressStream );
+    }
+  }
+
+  var addressesPipeline = require( 'through' )( function write( obj ){
+    console.log( JSON.stringify( obj, undefined, 0 ) );
+  }); // for testing
+  unifiedAddressStream.pipe( addressesPipeline );
+}
+
+/**
  * Respond to user command-line arguments.
  *
  * @param {array of string} rawArgs Just `process.argv.splice( 2 )` ( ie, all
@@ -61,62 +129,7 @@ function handleUserArgs( rawArgs ){
     return;
   }
   else {
-    var addressStreams = {};
-
-    if( args.hasOwnProperty( 'osm' ) ){
-      addressStreams.osm = CombinedStream.create();
-      createFileAddressStreams(
-        args.osm,
-        /\.osm\.pbf$/,
-        function ( filename ){
-          var fileStream = fs.createReadStream( filename );
-          addressStreams.osm.append( fileStream );
-        }
-      );
-    }
-
-    if( args.hasOwnProperty( 'tiger' ) ){
-      addressStreams.tiger = CombinedStream.create();
-      createFileAddressStreams(
-        args.tiger,
-        /\.shp$/,
-        function ( filename ){
-          addressStreams.tiger.append( function ( next ){
-            var fileStream = shapefileStream.createReadStream(
-              filename
-            );
-            next( fileStream );
-          });
-        }
-      );
-    }
-
-    if( args.hasOwnProperty( 'openaddresses' ) ){
-      addressStreams.openaddresses = CombinedStream.create();
-      createFileAddressStreams(
-        args.openaddresses,
-        /\.csv$/,
-        function ( filename ){
-          var fileStream = fs.createReadStream( filename );
-          addressStreams.openaddresses.append( fileStream );
-        }
-      );
-    }
-
-    var unifiedAddressStream = CombinedStream.create();
-    for( var dataset in addressStreams ){
-      if( addressStreams.hasOwnProperty( dataset ) ){
-        var addressStream = addresses[ dataset ].addressStream(
-          addressStreams[ dataset ]
-        );
-        unifiedAddressStream.append( addressStream );
-      }
-    }
-
-    var addressesPipeline = require( 'through' )( function write( obj ){
-      console.log( JSON.stringify( obj, undefined, 0 ) );
-    }); // for testing
-    unifiedAddressStream.pipe( addressesPipeline );
+    importDatasets( args );
   }
 }
 
