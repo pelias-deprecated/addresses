@@ -5,8 +5,24 @@
 
 'use strict';
 
+var logger = require( 'winston' );
 var minimist = require( 'minimist' );
 var datasetImport = require( './lib/dataset_import' );
+
+/**
+ * Configure the import script's logging framework.
+ * @param {string|null} logFile The path of the file to write all logging
+ *      statements to. If `null`, default to "import.log".
+ */
+function configureLogging( logFile ){
+  logger.remove( logger.transports.Console );
+  var loggerOptions = {
+    'filename': logFile || 'import.log',
+    'timestamp': true,
+    'colorize': true
+  };
+  logger.add( logger.transports.File, loggerOptions );
+}
 
 /**
  * Respond to user command-line arguments.
@@ -18,10 +34,17 @@ function handleUserArgs( rawArgs ){
   var helpMessage = [
     'A tool for importing, normalizing, and cross-interpolating addresses',
     'from numerous data sets. Use:',
-    '\n\tnode index.js [ --help | --source SOURCE [ ... ] ]\n',
+    '\n\tnode index.js [ --help |' +
+      ' --source SOURCE [ ... ] [ --log-file LOG_FILE ] ]\n',
     '--help: print this message and exit.',
     '--source SOURCE: import all files belonging to a supported dataset',
-    '\tfrom the argument directory (eg `--tiger tiger_shapefiles/`).'
+    '\tfrom the argument directory (eg `--tiger tiger_shapefiles/`).',
+    '\tCurrently supported flags are:\n',
+    '\t\t--openaddresses',
+    '\t\t--osm',
+    '\t\t--tiger\n',
+    '--log-file LOG_FILE: The path of the file to write all logging',
+    '\tstatements to. Defaults to "import.log".'
   ].join( '\n' );
 
   if( rawArgs.length === 0 ){
@@ -34,6 +57,7 @@ function handleUserArgs( rawArgs ){
     return;
   }
   else {
+    configureLogging( args[ 'log-file' ] );
     datasetImport( args );
   }
 }
