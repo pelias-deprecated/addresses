@@ -5,33 +5,23 @@
 
 'use strict';
 
-var fs = require( 'fs' );
-var path = require( 'path' );
-
-var CombinedStream = require( 'combined-stream' );
+var logger = require( 'winston' );
 var minimist = require( 'minimist' );
-var requireDir = require( 'require-dir' );
-var addresses = requireDir( 'lib/addresses' );
+var datasetImport = require( './lib/dataset_import' );
 
 /**
- * Execute an action on all files in a directory whose paths match a regular
- * expression.
- *
- * @param {string} dirPath The path of the directory to search.
- * @param {string} filenameRegex The regular expression to match file names
- *      inside `dirPath` against.
- * @param {function} action A function taking a single argument, a string
- *      filepath, that'll be called once for every matching path.
+ * Configure the import script's logging framework.
+ * @param {string|null} logFile The path of the file to write all logging
+ *      statements to. If `null`, default to "import.log".
  */
-function createFileAddressStreams( dirPath, filenameRegex, action ){
-  var files = fs.readdirSync( dirPath );
-  for( var file = 0; file < files.length; file++ ){
-    var filePath = path.join( dirPath, files[ file ] );
-    if( ( fs.lstatSync( filePath ).isFile() &&
-      filenameRegex.test( filePath ) ) ){
-      action( filePath );
-    }
-  }
+function configureLogging( logFile ){
+  logger.remove( logger.transports.Console );
+  var loggerOptions = {
+    'filename': logFile || 'import.log',
+    'timestamp': true,
+    'colorize': true
+  };
+  logger.add( logger.transports.File, loggerOptions );
 }
 
 /**
@@ -44,14 +34,21 @@ function handleUserArgs( rawArgs ){
   var helpMessage = [
     'A tool for importing, normalizing, and cross-interpolating addresses',
     'from numerous data sets. Use:',
-    '\n\tnode index.js [ --help | --source SOURCE [ ... ] ]\n',
+    '\n\tnode index.js [ --help |' +
+      ' --source SOURCE [ ... ] [ --log-file LOG_FILE ] ]\n',
     '--help: print this message and exit.',
     '--source SOURCE: import all files belonging to a supported dataset',
-    '\tfrom the argument directory (eg `--tiger tiger_shapefiles/`).'
+    '\tfrom the argument directory (eg `--tiger tiger_shapefiles/`).',
+    '\tCurrently supported flags are:\n',
+    '\t\t--openaddresses',
+    '\t\t--osm',
+    '\t\t--tiger\n',
+    '--log-file LOG_FILE: The path of the file to write all logging',
+    '\tstatements to. Defaults to "import.log".'
   ].join( '\n' );
 
   if( rawArgs.length === 0 ){
-    console.log( helpMessage );
+    console.error( helpMessage );
     process.exit( 1 );
   }
   var args = minimist( rawArgs );
@@ -60,49 +57,8 @@ function handleUserArgs( rawArgs ){
     return;
   }
   else {
-    var addressStream = CombinedStream.create();
-
-    if( args.hasOwnProperty( 'osm' ) ){
-      createFileAddressStreams(
-        args.osm,
-        /\.osm\.pbf$/,
-        function ( filename ){
-          var osmStream = addresses.osm.addressStream(
-            fs.createReadStream( filename )
-          );
-          addressStream.append( osmStream );
-        }
-      );
-    }
-
-    if( args.hasOwnProperty( 'tiger' ) ){
-      createFileAddressStreams(
-        args.tiger,
-        /\.shp$/,
-        function ( filename ){
-          addressStream.append(
-            addresses.tiger.addressStream( filename )
-          );
-        }
-      );
-    }
-
-    if( args.hasOwnProperty( 'openaddresses' ) ){
-      createFileAddressStreams(
-        args.openaddresses,
-        /\.csv/,
-        function ( filename ){
-          var openaddressesStream = addresses.openaddresses.
-            addressStream( fs.createReadStream( filename ) );
-          addressStream.append( openaddressesStream );
-        }
-      );
-    }
-
-    var addressesPipeline = require( 'through' )( function write( obj ){
-      console.log( JSON.stringify( obj, undefined, 2 ) );
-    });
-    addressStream.pipe( addressesPipeline );
+    configureLogging( args[ 'log-file' ] );
+    datasetImport( args );
   }
 }
 
