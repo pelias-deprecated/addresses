@@ -7,6 +7,7 @@
 var stream = require( 'stream' );
 var through = require( 'through' );
 var osm = require( '../lib/addresses/osm' );
+var Address = require( '../lib/address' );
 
 module.exports.tests = {};
 
@@ -52,17 +53,7 @@ module.exports.tests.normalizer = function ( test, common ){
     // correctly.
     var rawRecords = new stream.Readable( { objectMode: true } );
     var assertFilter = through( function write( obj ){
-      var expected = {
-        house: 'a',
-        number: '1',
-        street: 'b',
-        city: 'c',
-        state: 'd',
-        zip: '8',
-        country: null,
-        lat: 44,
-        lon: 55
-      };
+      var expected = new Address( 'a', '1', 'b', 'c', 'd', '8', null, 44, 55 );
 
       t.deepEqual( expected, obj, 'Objects match.' );
     }, function end(){
