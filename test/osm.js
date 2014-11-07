@@ -53,13 +53,14 @@ module.exports.tests.normalizer = function ( test, common ){
     var rawRecords = new stream.Readable( { objectMode: true } );
     var assertFilter = through( function write( obj ){
       var expected = {
-        'house' : 'a',
-        'number' : '1',
-        'street' : 'b',
-        'city' : 'c',
-        'state' : 'd',
-        'zip' : '8',
-        'coords': [ 44, 55 ]
+        house: 'a',
+        number: '1',
+        street: 'b',
+        city: 'c',
+        state: 'd',
+        zip: '8',
+        lat: 44,
+        lon: 55
       };
 
       t.deepEqual( expected, obj, 'Objects match.' );

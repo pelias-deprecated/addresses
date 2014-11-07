@@ -108,10 +108,8 @@ module.exports.tests.normalizer = function ( test, common ){
           city: null,
           state: null,
           zip: 10001,
-          coords: [
-            0.00010606601717798211,
-            10.000106066017178
-          ]
+          lon: 0.00010606601717798211,
+          lat: 10.000106066017178
         },
         {
           house: null,
@@ -120,10 +118,8 @@ module.exports.tests.normalizer = function ( test, common ){
           city: null,
           state: null,
           zip: 10001,
-          coords: [
-            2.99991,
-            11.99988
-          ]
+          lon: 2.99991,
+          lat: 11.99988
         },
         {
           house: null,
@@ -132,10 +128,8 @@ module.exports.tests.normalizer = function ( test, common ){
           city: null,
           state: null,
           zip: 10001,
-          coords: [
-            -0.00010606601717798211,
-            9.999893933982822
-          ]
+          lon: -0.00010606601717798211,
+          lat: 9.999893933982822
         },
         {
           house: null,
@@ -144,10 +138,8 @@ module.exports.tests.normalizer = function ( test, common ){
           city: null,
           state: null,
           zip: 10001,
-          coords: [
-            3.00009,
-            12.00012
-          ]
+          lon: 3.00009,
+          lat: 12.00012
         }
       ];
       var currCompareRecord = 0;

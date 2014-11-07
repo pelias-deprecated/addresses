@@ -60,7 +60,8 @@ module.exports.tests.normalizer = function ( test, common ){
         city: null,
         state: null,
         zip: null,
-        coords: [ 15, 10 ]
+        lat: 15,
+        lon: 10
       };
       var assertFilter = through( function ( obj ){
         t.deepEqual(
