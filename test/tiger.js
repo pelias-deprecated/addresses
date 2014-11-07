@@ -6,8 +6,10 @@
 
 var stream = require( 'stream' );
 var util = require( 'util' );
-var tiger = require( '../lib/addresses/tiger' );
 var through = require( 'through' );
+
+var Address = require( '../lib/address' );
+var tiger = require( '../lib/addresses/tiger' );
 
 module.exports.tests = {};
 
@@ -101,50 +103,22 @@ module.exports.tests.normalizer = function ( test, common ){
       rawRecords.push( null );
 
       var expected = [
-        {
-          house: null,
-          number: 19,
-          street: 'street',
-          city: null,
-          state: null,
-          zip: 10001,
-          country: "United States",
-          lon: 0.00010606601717798211,
-          lat: 10.000106066017178
-        },
-        {
-          house: null,
-          number: 21,
-          street: 'street',
-          city: null,
-          state: null,
-          zip: 10001,
-          country: "United States",
-          lon: 2.99991,
-          lat: 11.99988
-        },
-        {
-          house: null,
-          number: 20,
-          street: 'street',
-          city: null,
-          state: null,
-          zip: 10001,
-          country: "United States",
-          lon: -0.00010606601717798211,
-          lat: 9.999893933982822
-        },
-        {
-          house: null,
-          number: 22,
-          street: 'street',
-          city: null,
-          state: null,
-          zip: 10001,
-          country: "United States",
-          lon: 3.00009,
-          lat: 12.00012
-        }
+        new Address(
+          null, 19, 'street', null, null, 10001, "United States",
+          10.000106066017178, 0.00010606601717798211
+        ),
+        new Address(
+          null, 21, 'street', null, null, 10001, "United States", 11.99988,
+          2.99991
+        ),
+        new Address(
+          null, 20, 'street', null, null, 10001, "United States",
+          9.999893933982822, -0.00010606601717798211
+        ),
+        new Address(
+          null, 22, 'street', null, null, 10001, "United States", 12.00012,
+          3.00009
+        )
       ];
       var currCompareRecord = 0;
       var assertFilter = through( function ( obj ){

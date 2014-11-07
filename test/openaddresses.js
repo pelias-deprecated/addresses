@@ -6,8 +6,10 @@
 
 var stream = require( 'stream' );
 var util = require( 'util' );
-var openaddresses = require( '../lib/addresses/openaddresses' );
 var through = require( 'through' );
+
+var openaddresses = require( '../lib/addresses/openaddresses' );
+var Address = require( '../lib/address' );
 
 module.exports.tests = {};
 
@@ -53,17 +55,9 @@ module.exports.tests.normalizer = function ( test, common ){
       });
       rawRecords.push( null );
 
-      var expected = {
-        house: null,
-        number: 5,
-        street: 'mapzen',
-        city: null,
-        state: null,
-        zip: null,
-        country: null,
-        lat: 15,
-        lon: 10
-      };
+      var expected = new Address(
+        null, 5, 'mapzen', null, null, null, null, 15, 10
+      );
       var assertFilter = through( function ( obj ){
         t.deepEqual(
           obj, expected,
