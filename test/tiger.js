@@ -108,6 +108,7 @@ module.exports.tests.normalizer = function ( test, common ){
           city: null,
           state: null,
           zip: 10001,
+          country: "United States",
           lon: 0.00010606601717798211,
           lat: 10.000106066017178
         },
@@ -118,6 +119,7 @@ module.exports.tests.normalizer = function ( test, common ){
           city: null,
           state: null,
           zip: 10001,
+          country: "United States",
           lon: 2.99991,
           lat: 11.99988
         },
@@ -128,6 +130,7 @@ module.exports.tests.normalizer = function ( test, common ){
           city: null,
           state: null,
           zip: 10001,
+          country: "United States",
           lon: -0.00010606601717798211,
           lat: 9.999893933982822
         },
@@ -138,6 +141,7 @@ module.exports.tests.normalizer = function ( test, common ){
           city: null,
           state: null,
           zip: 10001,
+          country: "United States",
           lon: 3.00009,
           lat: 12.00012
         }

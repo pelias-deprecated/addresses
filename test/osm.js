@@ -59,6 +59,7 @@ module.exports.tests.normalizer = function ( test, common ){
         city: 'c',
         state: 'd',
         zip: '8',
+        country: null,
         lat: 44,
         lon: 55
       };
