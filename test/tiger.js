@@ -6,7 +6,7 @@
 
 var stream = require( 'stream' );
 var util = require( 'util' );
-var through = require( 'through' );
+var through = require( 'through2' );
 
 var Address = require( '../lib/address' );
 var tiger = require( '../lib/addresses/tiger' );
@@ -18,7 +18,7 @@ module.exports.tests.filter = function ( test, common ){
     // Check whether manually inserted records are being filtered
     // correctly.
     var rawRecords = new stream.Readable( { objectMode: true } );
-    var assertFilter = through( function write( obj ){
+    var assertFilter = through.obj( function write( obj, enc, next ){
       t.true(
         obj.geometry.type === 'LineString', 'Records are LineStrings'
       );
@@ -32,6 +32,7 @@ module.exports.tests.filter = function ( test, common ){
         ( notNull( 'RFROMADD' ) && notNull( 'RTOADD' ) ),
         'Valid street range is present.'
       );
+      next();
     }, function end(){
       t.end();
     });
@@ -121,11 +122,12 @@ module.exports.tests.normalizer = function ( test, common ){
         )
       ];
       var currCompareRecord = 0;
-      var assertFilter = through( function ( obj ){
+      var assertFilter = through.obj( function ( obj, enc, next ){
         t.deepEqual(
           obj, expected[ currCompareRecord++ ],
           util.format( 'Record #%d matches.', currCompareRecord )
         );
+        next();
       }, function end(){
         t.end();
       });

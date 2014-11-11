@@ -5,7 +5,7 @@
 'use strict';
 
 var stream = require( 'stream' );
-var through = require( 'through' );
+var through = require( 'through2' );
 var osm = require( '../lib/addresses/osm' );
 var Address = require( '../lib/address' );
 
@@ -16,12 +16,13 @@ module.exports.tests.filter = function ( test, common ){
     // Check whether manually inserted records are being filtered
     // correctly.
     var rawRecords = new stream.Readable( { objectMode: true } );
-    var assertFilter = through( function write( obj ){
+    var assertFilter = through.obj( function write( obj, enc, next ){
       t.true( obj.type === 'node', 'Records are nodes' );
       t.true(
         obj.tags[ 'addr:street' ] !== null,
         'Street name is not null.'
       );
+      next();
     }, function end(){
       t.end();
     });
@@ -52,10 +53,11 @@ module.exports.tests.normalizer = function ( test, common ){
     // Check whether manually inserted records are getting normalized
     // correctly.
     var rawRecords = new stream.Readable( { objectMode: true } );
-    var assertFilter = through( function write( obj ){
+    var assertFilter = through.obj( function write( obj, enc, next ){
       var expected = new Address( 'a', '1', 'b', 'c', 'd', '8', null, 44, 55 );
 
       t.deepEqual( expected, obj, 'Objects match.' );
+      next();
     }, function end(){
       t.end();
     });
