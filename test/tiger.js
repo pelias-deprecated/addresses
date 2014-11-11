@@ -6,8 +6,10 @@
 
 var stream = require( 'stream' );
 var util = require( 'util' );
+var through = require( 'through2' );
+
+var Address = require( '../lib/address' );
 var tiger = require( '../lib/addresses/tiger' );
-var through = require( 'through' );
 
 module.exports.tests = {};
 
@@ -16,7 +18,7 @@ module.exports.tests.filter = function ( test, common ){
     // Check whether manually inserted records are being filtered
     // correctly.
     var rawRecords = new stream.Readable( { objectMode: true } );
-    var assertFilter = through( function write( obj ){
+    var assertFilter = through.obj( function write( obj, enc, next ){
       t.true(
         obj.geometry.type === 'LineString', 'Records are LineStrings'
       );
@@ -30,6 +32,7 @@ module.exports.tests.filter = function ( test, common ){
         ( notNull( 'RFROMADD' ) && notNull( 'RTOADD' ) ),
         'Valid street range is present.'
       );
+      next();
     }, function end(){
       t.end();
     });
@@ -101,61 +104,30 @@ module.exports.tests.normalizer = function ( test, common ){
       rawRecords.push( null );
 
       var expected = [
-        {
-          house: null,
-          number: 19,
-          street: 'street',
-          city: null,
-          state: null,
-          zip: 10001,
-          coords: [
-            0.00010606601717798211,
-            10.000106066017178
-          ]
-        },
-        {
-          house: null,
-          number: 21,
-          street: 'street',
-          city: null,
-          state: null,
-          zip: 10001,
-          coords: [
-            2.99991,
-            11.99988
-          ]
-        },
-        {
-          house: null,
-          number: 20,
-          street: 'street',
-          city: null,
-          state: null,
-          zip: 10001,
-          coords: [
-            -0.00010606601717798211,
-            9.999893933982822
-          ]
-        },
-        {
-          house: null,
-          number: 22,
-          street: 'street',
-          city: null,
-          state: null,
-          zip: 10001,
-          coords: [
-            3.00009,
-            12.00012
-          ]
-        }
+        new Address(
+          null, 19, 'street', null, null, 10001, "United States",
+          10.000106066017178, 0.00010606601717798211
+        ),
+        new Address(
+          null, 21, 'street', null, null, 10001, "United States", 11.99988,
+          2.99991
+        ),
+        new Address(
+          null, 20, 'street', null, null, 10001, "United States",
+          9.999893933982822, -0.00010606601717798211
+        ),
+        new Address(
+          null, 22, 'street', null, null, 10001, "United States", 12.00012,
+          3.00009
+        )
       ];
       var currCompareRecord = 0;
-      var assertFilter = through( function ( obj ){
+      var assertFilter = through.obj( function ( obj, enc, next ){
         t.deepEqual(
           obj, expected[ currCompareRecord++ ],
           util.format( 'Record #%d matches.', currCompareRecord )
         );
+        next();
       }, function end(){
         t.end();
       });
