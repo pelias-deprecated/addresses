@@ -1,8 +1,11 @@
 {
-  "name": "addresses",
-  "version": "0.0.1",
+  "name": "pelias-addresses",
+  "version": "0.1.2",
   "description": "Mapzen addresses pipeline for generating a high-quality dump of global addresses.",
   "main": "index.js",
+  "bin": {
+    "pelias-import": "bin/cli_import_tool.js"
+  },
   "scripts": {
     "test": "node test/run.js | tap-spec"
   },
@@ -36,6 +39,6 @@
     "require-dir": "^0.1.0",
     "winston": "^0.8.1",
     "request": "^2.47.0",
-    "schema-mapper": "1.0.2"
+    "schema-mapper": "1.0.3"
   }
 }
