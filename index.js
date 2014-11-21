@@ -58,7 +58,7 @@ function handleUserArgs( rawArgs ){
   }
   else {
     configureLogging( args[ 'log-file' ] );
-    datasetImport( args );
+    datasetImport.importDatasets( args );
   }
 }
 
