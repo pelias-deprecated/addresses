@@ -11,22 +11,20 @@ var Address = require( '../lib/address' );
 
 var tests = {};
 
-tests.filter = function ( t ){
+tests.filter = function ( test ){
   // Check whether manually inserted records are being filtered
   // correctly.
   var rawRecords = new stream.Readable( { objectMode: true } );
   var assertFilter = through.obj( function write( obj, enc, next ){
-    t.true( obj.type === 'node', 'Records are nodes' );
-    t.true(
+    test.true( obj.type === 'node', 'Records are nodes' );
+    test.true(
       obj.tags[ 'addr:street' ] !== null,
       'Street name is not null.'
     );
     next();
-  }, function end(){
-    t.end();
   });
 
-  rawRecords.push([
+  var testRecords = [
     {
       'type' : 'Not a node',
       'addr:street' : 'street'
@@ -41,24 +39,26 @@ tests.filter = function ( t ){
         'addr:street' : 'street'
       }
     }
-  ]);
+  ];
+  test.plan( 2 );
+
+  rawRecords.push( testRecords );
   rawRecords.push( null );
   rawRecords.pipe( osm.filter ).pipe( assertFilter );
 };
 
-tests.normalizer = function ( t ){
+tests.normalizer = function ( test ){
   // Check whether manually inserted records are getting normalized
   // correctly.
   var rawRecords = new stream.Readable( { objectMode: true } );
   var assertFilter = through.obj( function write( obj, enc, next ){
     var expected = new Address( 'a', '1', 'b', 'c', 'd', '8', null, 44, 55 );
 
-    t.deepEqual( expected, obj, 'Objects match.' );
+    test.deepEqual( expected, obj, 'Objects match.' );
     next();
-  }, function end(){
-    t.end();
   });
 
+  test.plan( 1 );
   rawRecords.push({
     'type' : 'Point',
     'lat' : 44,
@@ -72,7 +72,6 @@ tests.normalizer = function ( t ){
       'addr:postcode' : '8'
     }
   });
-
   rawRecords.push( null );
   rawRecords.pipe( osm.normalizer ).pipe( assertFilter );
 };

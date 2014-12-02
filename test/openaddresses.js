@@ -13,12 +13,12 @@ var Address = require( '../lib/address' );
 
 var tests = {};
 
-tests.filter = function ( t ){
+tests.filter = function ( test ){
   // Check whether manually inserted records are being filtered
   // correctly.
   var rawRecords = new stream.Readable( { objectMode: true } );
   var assertFilter = through.obj( function write( obj, enc, next ){
-    t.true(
+    test.true(
       obj.lon !== '' &&
       obj.lat !== '' &&
       obj.number !== '' &&
@@ -26,10 +26,9 @@ tests.filter = function ( t ){
       'All necessary fields are non-empty.'
     );
     next();
-  }, function end(){
-    t.end();
   });
 
+  test.plan( 1 );
   rawRecords.push( { lon: '', lat: '-', number: '-', street: '-' } );
   rawRecords.push( { lon: '-', lat: '', number: '-', street: '-' } );
   rawRecords.push( { lon: '-', lat: '-', number: '', street: '-' } );
@@ -40,10 +39,12 @@ tests.filter = function ( t ){
   rawRecords.pipe( openaddresses.filter ).pipe( assertFilter );
 };
 
-tests.normalizer = function ( t ){
+tests.normalizer = function ( test ){
   // Check whether manually inserted records are getting interpolated and
   // normalized correctly.
   var rawRecords = new stream.Readable( { objectMode: true } );
+
+  test.plan( 1 );
   rawRecords.push({
     lon: 10,
     lat: 15,
@@ -56,14 +57,13 @@ tests.normalizer = function ( t ){
     null, 5, 'mapzen', null, null, null, null, 15, 10
   );
   var assertFilter = through.obj( function ( obj, enc, next ){
-    t.deepEqual(
+    test.deepEqual(
       obj, expected,
       util.format( 'Normalized record matches expected.' )
     );
     next();
   });
   rawRecords.pipe( openaddresses.normalizer ).pipe( assertFilter );
-  t.end();
 };
 
 module.exports = tests;

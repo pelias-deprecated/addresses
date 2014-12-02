@@ -13,12 +13,12 @@ var tiger = require( '../lib/addresses/tiger' );
 
 var tests = {};
 
-tests.filter = function ( t ){
+tests.filter = function ( test ){
   // Check whether manually inserted records are being filtered
   // correctly.
   var rawRecords = new stream.Readable( { objectMode: true } );
   var assertFilter = through.obj( function write( obj, enc, next ){
-    t.true(
+    test.true(
       obj.geometry.type === 'LineString', 'Records are LineStrings'
     );
 
@@ -26,14 +26,12 @@ tests.filter = function ( t ){
       return obj.properties[ propName ] !== null;
     }
 
-    t.true(
+    test.true(
       ( notNull( 'LFROMADD' ) && notNull( 'LTOADD' ) ) ||
       ( notNull( 'RFROMADD' ) && notNull( 'RTOADD' ) ),
       'Valid street range is present.'
     );
     next();
-  }, function end(){
-    t.end();
   });
 
   var testRecords = [
@@ -75,11 +73,13 @@ tests.filter = function ( t ){
   for( var rec = 0; rec < testRecords.length; rec++ ){
     rawRecords.push( testRecords[ rec ] );
   }
+
+  test.plan( 2 );
   rawRecords.push( null );
   rawRecords.pipe( tiger.filter ).pipe( assertFilter );
 };
 
-tests.normalizer = function ( t ){
+tests.normalizer = function ( test ){
   var rawRecords = new stream.Readable( { objectMode: true } );
   rawRecords.push({
     geometry: {
@@ -117,13 +117,13 @@ tests.normalizer = function ( t ){
   ];
   var currCompareRecord = 0;
   var assertFilter = through.obj( function ( obj, enc, next ){
-    t.deepEqual(
+    test.deepEqual(
       obj, expected[ currCompareRecord++ ],
       util.format( 'Record #%d matches.', currCompareRecord )
     );
     next();
   }, function end(){
-    t.end();
+    test.end();
   });
   rawRecords.pipe( tiger.normalizer ).pipe( assertFilter );
 };
