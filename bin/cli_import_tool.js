@@ -5,8 +5,10 @@
  * the Pelias address-import pipeline.
  */
 
-var schemaMapperTool = require("../node_modules/schema-mapper/bin/cli_tool");
-var datasetImport = require("../lib/dataset_import");
+'use strict';
 
-var args = process.argv.slice(2);
-schemaMapperTool(args, datasetImport.createImportPipeline());
+var schemaMapperTool = require( 'schema-mapper/bin/cli_tool' );
+var datasetImport = require( '../lib/dataset_import' );
+
+var args = process.argv.slice( 2 );
+schemaMapperTool( args, datasetImport.createImportPipeline( ) );
