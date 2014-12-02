@@ -39,7 +39,7 @@ function runTestFile( testFilePath ){
       process.exit( 1 );
     }
 
-    files.splice( files.indexOf( __filename ) );
+    files.splice( files.indexOf( 'run.js' ), 1);
     for( var ind = 0; ind < files.length; ind++ ){
       runTestFile( './' + files[ ind ] );
     }
