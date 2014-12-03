@@ -17,11 +17,13 @@ var datasetImport = require( './lib/dataset_import' );
 function configureLogging( logFile ){
   logger.remove( logger.transports.Console );
   var loggerOptions = {
-    'filename': logFile || 'import.log',
-    'timestamp': true,
-    'colorize': true
+    filename: logFile || 'import.log',
+    timestamp: true,
+    colorize: true,
+    handleExceptions: true
   };
   logger.add( logger.transports.File, loggerOptions );
+  logger.info( 'Logger loaded.' );
 }
 
 /**
@@ -57,6 +59,7 @@ function handleUserArgs( rawArgs ){
     return;
   }
   else {
+    Error.stackTraceLimit = Infinity;
     configureLogging( args[ 'log-file' ] );
     datasetImport.importDatasets( args );
   }
