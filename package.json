@@ -43,6 +43,7 @@
     "prop-stream": "0.0.0",
     "pelias-schema": "0.0.9",
     "pelias-suggester-pipeline": "1.0.1",
-    "pelias-dbclient": "0.0.3"
+    "pelias-dbclient": "0.0.3",
+    "pelias-model": "0.0.0"
   }
 }
