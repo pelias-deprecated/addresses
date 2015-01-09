@@ -1,3 +1,11 @@
+# deprecated
+As per the discussion in [this issue](https://github.com/pelias/addresses/issues/3), this repo has been partitioned
+into:
+
+  * [address-deduplicator-stream](https://github.com/pelias/address-deduplicator-stream)
+  * [tiger](https://github.com/pelias/tiger)
+  * [openaddresses](https://github.com/pelias/openaddresses)
+
 # mapzen addresses pipeline
 
 A pipeline for collating, normalizing, de-duplicating, and interpolating address data from a number of different
